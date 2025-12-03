@@ -1,0 +1,38 @@
+# Environment variables - NUNCA SUBIR AL REPOSITORIO
+.env
+.env.local
+.env.*.local
+*.env
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker
+docker-compose.override.yml
+
+# Test results
+test-results/
+playwright-report/
+html-report/
+
+# Build
+dist/
+build/
+*.tgz

@@ -1,0 +1,238 @@
+import React, { useState } from 'react';
+import { Card, CardHeader, CardBody } from '../ui/Card';
+import { LoadingSpinner } from '../ui/Loading';
+import { ErrorAlert } from '../ui/Alert';
+import { 
+  ClockIcon, 
+  CheckCircleIcon, 
+  ExclamationCircleIcon, 
+  PlayIcon,
+  InformationCircleIcon,
+  EyeIcon
+} from '@heroicons/react/24/outline';
+import { format, parseISO } from 'date-fns';
+import { es } from 'date-fns/locale';
+import ETLOperationDetail from './ETLOperationDetail';
+
+const ETLLogs = ({ logs, loading, error, onRefresh }) => {
+  const [selectedOperationId, setSelectedOperationId] = useState(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+  const handleViewDetails = (operationId) => {
+    setSelectedOperationId(operationId);
+    setIsDetailOpen(true);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-40">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <ErrorAlert 
+        error={error}
+        onRetry={onRefresh}
+        onDismiss={() => {}}
+      />
+    );
+  }
+
+  // Función para formatear fechas
+  const formatDate = (dateStr) => {
+    try {
+      return format(parseISO(dateStr), 'dd MMM yyyy, HH:mm:ss', { locale: es });
+    } catch {
+      return dateStr || 'N/A';
+    }
+  };
+
+  // Función para obtener icono según estado
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 'completed':
+        return <CheckCircleIcon className="w-5 h-5 text-green-500" />;
+      case 'running':
+        return <PlayIcon className="w-5 h-5 text-blue-500" />;
+      case 'failed':
+        return <ExclamationCircleIcon className="w-5 h-5 text-red-500" />;
+      default:
+        return <InformationCircleIcon className="w-5 h-5 text-gray-500" />;
+    }
+  };
+
+  // Función para obtener color según estado
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'completed':
+        return 'text-green-700 bg-green-50';
+      case 'running':
+        return 'text-blue-700 bg-blue-50';
+      case 'failed':
+        return 'text-red-700 bg-red-50';
+      default:
+        return 'text-gray-700 bg-gray-50';
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <ClockIcon className="w-6 h-6 text-seace-blue mr-3" />
+            <h3 className="text-lg font-semibold">Historial de Operaciones ETL</h3>
+          </div>
+          <button 
+            onClick={onRefresh}
+            className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-seace-blue hover:bg-seace-blue-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-seace-blue"
+          >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Actualizar
+          </button>
+        </div>
+      </CardHeader>
+      <CardBody>
+        {logs && logs.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Estado
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Tipo
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Mensaje
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Procesados
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Detalles
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Duración
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Fecha
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {logs.map((log) => (
+                  <tr key={log.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(log.status)}`}>
+                        <span className="mr-1">{getStatusIcon(log.status)}</span>
+                        {log.status}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {log.operation_type.replace('_', ' ')}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
+                      {log.message}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                        📊 {log.process_count || log.inserted_count || 0}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-center">
+                      {log.operation_type === 'CATEGORIZACION' && log.details && (
+                        <div className="flex flex-col gap-1">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                            🤖 IA (Gemini): {log.details.usaronIA || 0}
+                          </span>
+                          {log.details.distribucionCategorias && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                              📊 {Object.keys(log.details.distribucionCategorias).length} categorías
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      {log.operation_type === 'UBICACION' && log.details && (
+                        <div className="flex flex-col gap-1">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                            🤖 IA: {log.details.usaronIA || 0}
+                          </span>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                            ⚠️ Fallback: {log.details.usaronFallback || 0}
+                          </span>
+                          {log.details.mejorados > 0 && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                              ✨ Mejorados: {log.details.mejorados}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      {log.operation_type !== 'CATEGORIZACION' && log.operation_type !== 'UBICACION' && (
+                        <div className="flex flex-col gap-1">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                            ✨ Nuevos: {log.inserted_count || 0}
+                          </span>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                            🔄 Actualizados: {log.updated_count || 0}
+                          </span>
+                          {log.error_count > 0 && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                              ❌ Errores: {log.error_count}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {log.duration_ms ? `${(log.duration_ms / 1000).toFixed(2)}s` : 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {formatDate(log.created_at)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                      <button
+                        onClick={() => handleViewDetails(log.operation_id)}
+                        className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-seace-blue hover:bg-seace-blue-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-seace-blue transition-colors"
+                        title="Ver detalles de la operación"
+                      >
+                        <EyeIcon className="w-4 h-4 mr-1" />
+                        Detalle
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <ClockIcon className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No hay operaciones registradas</h3>
+            <p className="mt-1 text-sm text-gray-500">
+              No se encontraron registros de operaciones ETL.
+            </p>
+          </div>
+        )}
+
+        {/* Modal de Detalle */}
+        <ETLOperationDetail 
+          isOpen={isDetailOpen}
+          onClose={() => setIsDetailOpen(false)}
+          operationId={selectedOperationId}
+        />
+      </CardBody>
+    </Card>
+  );
+};
+
+export default ETLLogs;
