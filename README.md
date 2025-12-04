@@ -43,7 +43,5 @@ El proyecto planea evolucionar para incluir integración en tiempo real con el S
 **Enlaces de videos (reacciones del uso del aplicativo):**
 - INTELIGENCIA: https://drive.google.com/drive/folders/1lLQZykXC1dG_hXZVNKiZZZybjvs3buHh
 
-Si quieres, puedo añadir miniaturas o una página de `media/` con los videos embebidos en el frontend.
-
 ---
 Fecha: 2025
