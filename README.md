@@ -41,7 +41,9 @@ El proyecto planea evolucionar para incluir integración en tiempo real con el S
 
 
 **Enlaces de videos (reacciones del uso del aplicativo):**
-- INTELIGENCIA: https://drive.google.com/drive/folders/1lLQZykXC1dG_hXZVNKiZZZybjvs3buHh
+- Reacciones: https://drive.google.com/drive/folders/1lLQZykXC1dG_hXZVNKiZZZybjvs3buHh
+
+- Video Explicativo: https://youtu.be/oCPvFzb2JrQ
 
 ---
 Fecha: 2025
